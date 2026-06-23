@@ -1,6 +1,6 @@
 # AudioShelf Lite
 
-AudioShelf Lite is a lightweight Android client for a local Audiobookshelf server. It was built for an older Xiaomi Mi 4 running Android 6.0.1, with a simple child-friendly interface for listening to bedtime stories on a home network.
+AudioShelf Lite is a lightweight Android client for a local Audiobookshelf server. It is designed as a simple child-friendly audiobook player for older Android devices, especially Android 6 era phones.
 
 ## Features
 
@@ -14,8 +14,9 @@ AudioShelf Lite is a lightweight Android client for a local Audiobookshelf serve
 - Portrait-only layout to avoid playback interruption on device rotation
 - Dark theme for night listening
 - Simple setting protection: tap Settings three times to open it
+- Single-activity Java implementation without third-party runtime dependencies
 
-## Target Device
+## Target Runtime
 
 The app is designed for:
 
@@ -93,6 +94,16 @@ Then open this file on the phone:
 Download/AudioShelfLite.apk
 ```
 
+## App Controls
+
+- `书架`: load the Audiobookshelf libraries
+- `继续听`: resume the latest local playback position, falling back to Audiobookshelf progress when needed
+- `定时`: sleep timer, cycling through off, 15, 20, 25, and 30 minutes
+- `设置`: tap three times quickly to show or hide the login/settings panel
+- `≪`: previous chapter in the active chapter list
+- `▶ / II`: play or pause
+- `≫`: next chapter in the active chapter list
+
 ## Audiobookshelf API Usage
 
 The app uses these Audiobookshelf endpoints:
@@ -115,34 +126,8 @@ Progress sync is implemented through Audiobookshelf playback sessions. The app c
 
 - Cleartext HTTP is intentionally allowed for local LAN Audiobookshelf servers.
 - The activity is locked to portrait to avoid playback interruption on old Android devices when the phone rotates.
-- This is a small single-activity Java app without third-party runtime dependencies.
-
-## Publish To GitHub As A Public Repo
-
-If GitHub CLI is installed and logged in, run this from the project root:
-
-```powershell
-gh repo create AudioShelf-Lite --public --source . --remote origin --push
-```
-
-If GitHub CLI is not installed, create a new public repository on GitHub manually, then run:
-
-```powershell
-git remote add origin https://github.com/YOUR_USERNAME/AudioShelf-Lite.git
-git branch -M main
-git push -u origin main
-```
-
-If you prefer SSH:
-
-```powershell
-git remote add origin git@github.com:YOUR_USERNAME/AudioShelf-Lite.git
-git branch -M main
-git push -u origin main
-```
-
-Replace `YOUR_USERNAME` with your GitHub username.
+- The launcher icon uses vector resources for Android 6 and adaptive icon resources for newer Android versions.
 
 ## License
 
-No license has been selected yet. If this repository is public, add a license before inviting other people to reuse or modify the code.
+MIT
