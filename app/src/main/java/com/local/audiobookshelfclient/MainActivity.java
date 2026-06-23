@@ -101,9 +101,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         setContentView(buildUi());
-        serverInput.setText(prefs.getString("server", "http://192.168.3.102:13378"));
+        prefs.edit().remove("password").apply();
+        serverInput.setText(prefs.getString("server", "http://192.168.1.100:13378"));
         usernameInput.setText(prefs.getString("username", ""));
-        passwordInput.setText(prefs.getString("password", ""));
+        passwordInput.setText("");
         updateLoginVisibility();
         setStatus("准备听故事");
         progressHandler.post(progressRunnable);
@@ -330,8 +331,12 @@ public class MainActivity extends Activity {
                 if (token == null || token.length() == 0) {
                     throw new IOException("登录成功但没有找到 token");
                 }
-                prefs.edit().putString("server", server).putString("username", username).putString("token", token).apply();
-                prefs.edit().putString("password", password).apply();
+                prefs.edit()
+                    .putString("server", server)
+                    .putString("username", username)
+                    .putString("token", token)
+                    .remove("password")
+                    .apply();
                 runOnMain(() -> { showLoading(false); setStatus("登录成功"); loadLibraries(); });
             } catch (Exception e) {
                 runOnMain(() -> { showLoading(false); setStatus("登录失败: " + e.getMessage()); });

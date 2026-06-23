@@ -1,6 +1,8 @@
 # AudioShelf Lite
 
-AudioShelf Lite is a lightweight Android client for a local Audiobookshelf server. It is designed as a simple child-friendly audiobook player for older Android devices, especially Android 6 era phones.
+AudioShelf Lite is a lightweight Android client for a local [Audiobookshelf](https://www.audiobookshelf.org/) server. It is designed as a simple child-friendly audiobook player for older Android devices, especially Android 6 era phones.
+
+This app is only a client. It requires a running [Audiobookshelf server](https://github.com/advplyr/audiobookshelf) to provide authentication, libraries, metadata, audio streaming, and playback progress sync.
 
 ## Features
 
@@ -22,12 +24,12 @@ The app is designed for:
 
 - Android 6.0.1 or newer
 - Xiaomi Mi 4 / MIUI 8 class devices
-- Local Audiobookshelf server over HTTP or HTTPS
+- Local [Audiobookshelf](https://www.audiobookshelf.org/) server over HTTP or HTTPS
 
 The current default server address in the app is:
 
 ```text
-http://192.168.3.102:13378
+http://192.168.1.100:13378
 ```
 
 You can change it from the app settings. Tap `设置` three times quickly to show the login/settings panel.
@@ -57,12 +59,12 @@ This project currently uses:
 - Android SDK platform 35
 - Minimum SDK 23
 
-On the original development machine:
+Configure JDK, Android SDK, and Gradle according to your local environment. For example:
 
 ```text
-JAVA_HOME=C:\Program Files\Microsoft\jdk-17.0.19.10-hotspot
-ANDROID_HOME=C:\Users\mxxmu\AppData\Local\Android\Sdk
-Gradle=C:\tools\gradle-8.10.2\bin\gradle
+JAVA_HOME=<path-to-jdk-17>
+ANDROID_HOME=<path-to-android-sdk>
+Gradle=<path-to-gradle-8.10.2>
 ```
 
 ## Build
