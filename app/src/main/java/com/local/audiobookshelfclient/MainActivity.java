@@ -47,6 +47,9 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity {
     private static final String PREFS = "abs_client_prefs";
+    private static final int SLEEP_TIMER_DEFAULT_MINUTES = 15;
+    private static final int SLEEP_TIMER_STEP_MINUTES = 5;
+    private static final int SLEEP_TIMER_MAX_MINUTES = 30;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -61,6 +64,7 @@ public class MainActivity extends Activity {
     private TextView nowPlayingText;
     private TextView timeText;
     private Button playPauseButton;
+    private Button sleepTimerButton;
     private LinearLayout loginPanel;
     private LinearLayout quickPanel;
     private SeekBar seekBar;
@@ -80,10 +84,13 @@ public class MainActivity extends Activity {
     private String pendingResumeIno = "";
     private int settingsTapCount = 0;
     private long lastSettingsTapAt = 0;
+    private int sleepTimerMinutes = 0;
+    private long sleepTimerEndsAt = 0;
 
     private final Runnable progressRunnable = new Runnable() {
         @Override
         public void run() {
+            updateSleepTimerUi();
             updateProgressUi();
             progressHandler.postDelayed(this, 1000);
         }
@@ -148,9 +155,11 @@ public class MainActivity extends Activity {
         quickPanel.setGravity(Gravity.CENTER_VERTICAL);
         Button librariesButton = smallButton("书架", Color.rgb(73, 132, 168));
         Button continueButton = smallButton("继续听", Color.rgb(218, 128, 44));
+        sleepTimerButton = smallButton("定时:关", Color.rgb(88, 109, 146));
         Button toggleLoginButton = smallButton("设置", Color.rgb(115, 104, 158));
         quickPanel.addView(librariesButton, smallButtonParams());
         quickPanel.addView(continueButton, smallButtonParams());
+        quickPanel.addView(sleepTimerButton, smallButtonParams());
         quickPanel.addView(toggleLoginButton, smallButtonParams());
         root.addView(quickPanel);
 
@@ -203,6 +212,7 @@ public class MainActivity extends Activity {
         librariesButton.setOnClickListener(v -> loadLibraries());
         toggleLoginButton.setOnClickListener(v -> guardedToggleSettings());
         continueButton.setOnClickListener(v -> continueLastStory());
+        sleepTimerButton.setOnClickListener(v -> advanceSleepTimer());
         prevButton.setOnClickListener(v -> playRelative(-1));
         playPauseButton.setOnClickListener(v -> togglePlayPause());
         nextButton.setOnClickListener(v -> playRelative(1));
@@ -258,8 +268,12 @@ public class MainActivity extends Activity {
     private Button smallButton(String text, int color) {
         Button button = button(text);
         button.setTextColor(Color.WHITE);
-        button.setTextSize(13);
+        button.setTextSize(12);
         button.setGravity(Gravity.CENTER);
+        button.setPadding(0, 0, 0, 0);
+        button.setMinHeight(0);
+        button.setMinimumHeight(0);
+        button.setIncludeFontPadding(false);
         button.setBackground(rounded(color, 12));
         return button;
     }
@@ -291,7 +305,7 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams smallButtonParams() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(34), 1);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(40), 1);
         params.setMargins(dp(2), dp(3), dp(2), dp(3));
         return params;
     }
@@ -594,6 +608,47 @@ public class MainActivity extends Activity {
             mediaPlayer = null;
         }
         updatePlayPauseButton();
+    }
+
+    private void advanceSleepTimer() {
+        if (sleepTimerMinutes <= 0) {
+            sleepTimerMinutes = SLEEP_TIMER_DEFAULT_MINUTES;
+        } else if (sleepTimerMinutes < SLEEP_TIMER_MAX_MINUTES) {
+            sleepTimerMinutes = Math.min(SLEEP_TIMER_MAX_MINUTES, sleepTimerMinutes + SLEEP_TIMER_STEP_MINUTES);
+        } else {
+            clearSleepTimer();
+            setStatus("定时已关闭");
+            return;
+        }
+        sleepTimerEndsAt = System.currentTimeMillis() + sleepTimerMinutes * 60_000L;
+        updateSleepTimerUi();
+        setStatus("定时 " + sleepTimerMinutes + " 分钟后停止");
+    }
+
+    private void clearSleepTimer() {
+        sleepTimerMinutes = 0;
+        sleepTimerEndsAt = 0;
+        updateSleepTimerButton("定时:关");
+    }
+
+    private void updateSleepTimerUi() {
+        if (sleepTimerEndsAt <= 0) {
+            updateSleepTimerButton("定时:关");
+            return;
+        }
+        long remainingMs = sleepTimerEndsAt - System.currentTimeMillis();
+        if (remainingMs <= 0) {
+            clearSleepTimer();
+            stopPlayback();
+            setStatus("定时结束，已停止播放");
+            return;
+        }
+        int remainingMinutes = (int) Math.ceil(remainingMs / 60000.0);
+        updateSleepTimerButton("定时:" + remainingMinutes + "分");
+    }
+
+    private void updateSleepTimerButton(String text) {
+        if (sleepTimerButton != null) sleepTimerButton.setText(text);
     }
 
     private void updatePlayPauseButton() {
